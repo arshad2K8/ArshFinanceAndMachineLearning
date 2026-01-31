@@ -1,0 +1,247 @@
+1. Select 6-10 equities
+
+Choose from a major index (for example, FTSE 100 in the UK or S&P 500 in the US).
+
+Diversify across sectors (e.g., technology, consumer, industrials, financials, energy).
+
+Document the ticker, sector, market cap, and why you selected each.
+
+2. Download historical data (min 3 years, monthly or weekly)
+
+Use a data source (you mention Bloomberg — if accessible). If not, alternative sources (e.g., yfinance for Python) may be acceptable (check your instructions).
+
+Ensure you pull adjusted prices (splits/dividends handled).
+
+Convert to returns (e.g., weekly return = (Price_t / Price_{t-1} − 1)).
+
+Use same frequency for all stocks.
+
+3. Construct an efficient portfolio
+
+You’ll want to go through:
+
+Compute expected returns for each stock (historical average).
+
+Compute risk metrics: standard deviation (volatility) of each stock’s returns.
+
+Compute correlation matrix and variance-covariance matrix across the stocks.
+
+Use Modern Portfolio Theory (e.g., Harry Markowitz’s framework) to determine efficient frontier, optimal portfolios (e.g., maximum Sharpe, minimum variance).
+
+Compare with alternative strategies:
+
+Equal-weighted portfolio (each stock = 1/N).
+
+Minimum‐variance portfolio.
+
+Perhaps another strategy of your choice (momentum, sector tilt, etc.).
+
+Show how weights differ among these strategies.
+
+4. Evaluate portfolio performance
+
+For each portfolio (efficient vs alternatives):
+
+Calculate annualised return, annualised volatility.
+
+Compute risk-adjusted measures:
+
+Sharpe Ratio = (Portfolio return − risk-free rate) / volatility.
+
+Treynor Ratio = (Portfolio return − risk-free rate) / Beta.
+
+Jensen’s Alpha: intercept from regression of portfolio returns on market returns.
+
+Beta: sensitivity of portfolio returns to market returns.
+
+Provide Excel/ Python output or tables/graphs.
+
+Compare which portfolio gives better risk-return trade-off.
+
+5. Risks & limitations
+
+Discuss, for example:
+
+Model assumptions: normality of returns, stable correlations over time, no transaction costs or taxes.
+
+Real-world limitations: data quality, estimation error, look-back bias, survivorship bias.
+
+Systematic risk (market risk) vs non-systematic (stock-specific).
+
+Implementation risk: liquidity, transaction cost, slippage.
+
+Overfitting risk: using past data may not guarantee future performance.
+
+
+
+========================================================
+1. Example Data
+
+Assume 2 stocks (A and B):
+
+Historical weekly returns (DataFrame)
+           A      B
+Week1    0.02   0.01
+Week2   -0.01   0.03
+Week3    0.04  -0.02
+
+Mean weekly returns (Series)
+A: 0.0167
+B: 0.0067
+
+Covariance matrix
+        A       B
+A   0.0006   0.0001
+B   0.0001   0.0005
+
+Portfolio weights
+w = [0.6, 0.4]
+
+
+2️⃣ What portfolio_perf() produces
+
+This uses mean returns only, not the full history.
+
+port_ret = w' * mean_returns
+         = 0.6*0.0167 + 0.4*0.0067
+         = 0.01267   → 1.267% expected weekly return
+
+port_vol = sqrt(w' Σ w)
+         = sqrt(...)
+         ≈ 0.0200    → 2.00% expected weekly volatility
+
+vs
+
+def portfolio_return_series(weights, returns_df, tickers): w = np.array(weights) return returns_df[tickers].dot(w)
+
+What portfolio_return_series() produces
+
+This uses the actual returns per week.
+
+weekly returns (DataFrame)
+           A      B
+Week1    0.02   0.01
+Week2   -0.01   0.03
+Week3    0.04  -0.02
+
+==>
+
+Week1: 0.6*0.02 + 0.4*0.01 = 0.016
+Week2: 0.6*(-0.01) + 0.4*0.03 = 0.006
+Week3: 0.6*0.04 + 0.4*(-0.02) = 0.016
+
+==>
+✔️ Output looks like a Series:
+Week1    0.016
+Week2    0.006
+Week3    0.016
+dtype: float64
+
+
+→ This is the portfolio return each week.
+
+========================================================
+
+
+Here a very clear, intuitive explanation of what this code does:
+
+cov_rp_rm = np.cov(portfolioReturns, marketReturns)[0, 1]
+var_rm    = np.var(marketReturns)
+beta      = cov_rp_rm / var_rm
+
+🎯 What Beta Really Measures
+
+Beta = how much your portfolio tends to move when the market moves.
+
+If beta = 1 → moves like the market
+
+If beta = 2 → moves twice as much
+
+If beta = 0.5 → moves half as much
+
+If beta = 0 → no relationship
+
+If beta < 0 → moves opposite the market
+
+To find this, we compare how the portfolio and market move together.
+
+==
+
+2️⃣ Market variance:
+var_rm = np.var(marketReturns)
+
+➤ What is variance?
+
+Variance measures how much the market fluctuates by itself, i.e., the market’s own volatility.
+
+It’s the denominator of beta.
+
+beta = cov_rp_rm / var_rm
+
+This gives:
+
+𝛽
+=
+How much portfolio + market move together
+How much the market moves
+β=
+How much the market moves
+How much portfolio + market move together
+	​
+
+Intuition:
+
+If the portfolio's movements mostly come from market movements,
+then covariance will be high, and so will beta.
+
+If portfolio moves hardly depend on the market,
+then covariance will be small, and beta will be near zero.
+
+This gives:
+
+𝛽
+=
+How much portfolio + market move together
+How much the market moves
+β=
+How much the market moves
+How much portfolio + market move together
+	​
+
+Intuition:
+
+If the portfolio's movements mostly come from market movements,
+then covariance will be high, and so will beta.
+
+If portfolio moves hardly depend on the market,
+then covariance will be small, and beta will be near zero.
+
+
+========>
+
+What does cum_random.values look like?
+
+If cum_random is (T × N), then:
+
+cum_random.values.shape → (T, N)
+
+
+This is a NumPy 2D array.
+
+When you do:
+
+plt.plot(cum_random.index, cum_random.values, alpha=0.02)
+
+
+Matplotlib interprets this as:
+
+Use cum_random.index for the x-axis (T values)
+
+Use each column of cum_random.values as a separate y-series
+
+So it plots N lines at once — one for each random portfolio.
+
+Because alpha=0.02, each line is very faint gray.
+
+
+==>

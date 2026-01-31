@@ -1,0 +1,7 @@
+
+
+returns = prices.pct_change().dropna()
+Calculates the percentage change between each row and the previous row.
+This is often used to compute daily returns in finance:
+
+-->
